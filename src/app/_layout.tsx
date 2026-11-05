@@ -1,18 +1,63 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import "@/global.css";
+import { Stack, useRouter, useSegments } from "expo-router";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
+import { getCurrentUser } from "../services/auth";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+export default function RootLayout() {
+  const router = useRouter();
+  const segments = useSegments();
+  const [loading, setLoading] = useState(true);
 
-SplashScreen.preventAutoHideAsync();
+  useEffect(() => {
+    let active = true;
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+    async function checkAuth() {
+      try {
+        const user = await getCurrentUser();
+
+        if (!active) return;
+
+        const inAuth = segments[0] === "(auth)";
+
+        if (!user && !inAuth) {
+          router.replace("/(auth)/login");
+        } else if (user && inAuth) {
+          router.replace("/(tabs)");
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    checkAuth();
+
+    return () => {
+      active = false;
+    };
+  }, [segments]);
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#100D20",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator color="#A78BFA" size="large" />
+      </View>
+    );
+  }
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="tournament/[id]" />
+      <Stack.Screen name="room/[id]" />
+    </Stack>
   );
 }

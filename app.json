@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "BooyahX",
-    "slug": "BooyahX",
+    "slug": "booyahx",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -11,6 +11,8 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.booyahx.app",
+
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
